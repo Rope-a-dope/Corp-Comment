@@ -3,22 +3,18 @@ import { TFeedbackItem } from "../lib/types";
 
 type Store = {
   feedbackItems: TFeedbackItem[];
-  isLoading: boolean;
-  errorMessage: string;
   selectedCompany: string;
   actions: {
     getCompanyList: () => string[];
     getFilteredFeedbackItems: () => TFeedbackItem[];
     addItemToList: (text: string) => Promise<void>;
     selectCompany: (company: string) => void;
-    fetchFeedbackItems: () => Promise<void>;
+    setFeedbackItems: (feedbackItems: TFeedbackItem[]) => void;
   };
 };
 
 export const useFeedbackItemsStore = create<Store>((set, get) => ({
   feedbackItems: [],
-  isLoading: false,
-  errorMessage: "",
   selectedCompany: "",
   actions: {
     getCompanyList: () => {
@@ -74,40 +70,15 @@ export const useFeedbackItemsStore = create<Store>((set, get) => ({
         selectedCompany: company,
       }));
     },
-    fetchFeedbackItems: async () => {
+    setFeedbackItems(feedbackItems) {
       set(() => ({
-        isLoading: true,
-      }));
-
-      try {
-        const response = await fetch(
-          "https://bytegrad.com/course-assets/projects/corpcomment/api/feedbacks"
-        );
-
-        if (!response.ok) {
-          throw new Error();
-        }
-
-        const data = await response.json();
-        set(() => ({
-          feedbackItems: data.feedbacks,
-        }));
-      } catch (error) {
-        set(() => ({
-          errorMessage: "Something went wrong. Please try again later.",
-        }));
-      }
-
-      set(() => ({
-        isLoading: false,
+        feedbackItems,
       }));
     },
   },
 }));
 
 export const useFeedbackItems = () => useFeedbackItemsStore((state) => state.feedbackItems);
-export const useIsLoading = () => useFeedbackItemsStore((state) => state.isLoading);
-export const useErrorMessage = () => useFeedbackItemsStore((state) => state.errorMessage);
 export const useSelectedCompany = () => useFeedbackItemsStore((state) => state.selectedCompany);
 export const useFeedbackItemActions = () => useFeedbackItemsStore((state) => state.actions);
 export const useCompanyList = () => useFeedbackItemsStore((state) => state.actions.getCompanyList());
